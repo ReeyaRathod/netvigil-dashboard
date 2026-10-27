@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>NetVigil - Network VAPT Engine</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-8">
+	<div class="max-w-5xl mx-auto space-y-6">
+
+		<!-- Title Banner -->
+		<div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg flex justify-between items-center">
+			<div>
+				<h1 class="text-2xl font-bold text-indigo-400">NetVigil Network VAPT Engine</h1>
+				<p class="text-sm text-slate-400">Automated Network Vulnerability Assessment & Risk Reporting</p>
+			</div>
+			<span class="px-3 py-1 bg-indigo-900/50 text-indigo-300 border border-indigo-700 rounded-full text-xs font-mono">Offline Ready</span>
+		</div>
+
+		<!-- Scan Input Form -->
+		<div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg">
+			<form action="/scan" method="get" class="flex gap-4">
+				<input type="text" name="ip" placeholder="Enter Target IP (e.g. 127.0.0.1 or 192.168.1.1)" required
+					class="flex-1 px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 font-mono">
+				<button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition">Start VAPT Scan</button>
+			</form>
+		</div>
+
+		{% if scan_results %}
+		<!-- Results Section -->
+		<div class="space-y-6">
+
+			<!-- Summary Bar & Export -->
+			<div class="flex justify-between items-center bg-slate-800 border border-slate-700 p-4 rounded-xl">
+				<div>
+					<h2 class="text-lg font-bold">Target: <span class="text-indigo-400 font-mono">{{ target_ip }}</span></h2>
+					<div class="flex gap-4 mt-2 text-sm font-semibold">
+						<span class="text-red-400">Critical: {{scan_results.summary.Critical }}</span>
+						<span class="text-orange-400">High: {{ scan_results.summary.High }}</span>
+						<span class="text-yellow-400">Medium: {{ scan_results.summary.Medium }}</span>
+						<span class="text-green-400">Low: {{ scan_results.summary.Low }}</span>
+					</div>
+				</div>
+				<a href="/download-pdf" class="px-4 py-2 bg-emerald-600 hoverr:bg-emerald-500 font-medium rounded-lg text-sm transition flex items-center gap-2">
+					Export PDF VAPT Report
+				</a>
+			</div>
+
+			<!-- Detailed Table -->
+			<div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+				<table class="w-full text-left text-sm text-slate-300">
+					<thead class="bg-slate-900/80 text-xs uppercase text-slate-400 border-b border-slate-700">
+						<tr>
+							<th class="px-6 py-3">Port</th>
+							<th class="px-6 py-3">Service</th>
+							<th class="px-6 py-3">Severity</th>
+							<th class="px-6 py-3">Issue Details & Remediation</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-700">
+						{% for finding in scan_results.findings %}
+						<tr class="hover:bg-slate-700/50">
+							<td class="px-6 py-4 font-monoo text-indigo-300 font-bold">{{ finding.port }}</td>
+							<td class="px-6 py-4 font-semobold">{{ finding.service }}</td>
+							<td class="px-6 py-4 font-bold">
+								{% if finding.risk == 'Critical' %}<span class="text-red-400 bg-red-950/40 px-2 py-1 rounded border border-red-800">Critical</span>
+								{% elif finding.risk == 'High' %}<span class="text-orange-400 bg-orange-950/40 px-2 py-1 rounded border border-orange-800">High</span>
+								{% elif finding.risk == 'Medium' %}<span class="text-yellow-400 bg-yellow-950/40 px-2 py-1 rounded border border-yelloe-800">Medium</span>
+								{% else %}<span class="text-green-400 bg-green-950/40 px-2 py-1 rounded border border-green-800">Low</span>
+								{% endif %}
+							</td>
+							<td class="px-6 py-4 space-y-1">
+								<p><span class="text-slate-400">Risk:</span> {{ finding.issue }}</p>
+								<p><span class="text-emerald-400">Remediation:</span> {{ finding.recommendation }}</p>
+							</td>
+						</tr>
+						{% endfor %}
+						{% if not scan_results.findings %}
+						<tr>
+							<td colspan="4" class="px-6 py-8 text-center text-slate-500">No open target ports identified during assessment.</td>
+						</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+		{% endif %}
+	</div>
+</body>
+</html>	
