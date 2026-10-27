@@ -1,0 +1,1 @@
+NetVigil is an offline VAPT (Vulnerability Assessment and Penetration Testing) dashboard built with FastAPI, Tailwind CSS, and ReportLab. It performs automated local network scans and generates professional, perfectly formatted PDF risk reports.
